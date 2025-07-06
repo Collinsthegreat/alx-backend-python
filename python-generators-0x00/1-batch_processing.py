@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
-import mysql.connector
-from mysql.connector import Error
+import mysql.connector  # For database connection
+from mysql.connector import Error  # For error handling
 
-def stream_users():
+def stream_users_in_batches(batch_size):
     """
-    Generator function that connects to the database and yields one user at a time.
+    Generator function that yields users one at a time from the database in batches.
 
+    Args:
+        batch_size (int): Number of users to fetch per batch.
     Yields:
-        dict: A dictionary representing a user row.
+        dict: One user dictionary at a time.
     """
     try:
         # Connect to the ALX_prodev database
         connection = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='',  # Update if your MySQL setup uses a password
+            password='',  # Update if your MySQL requires a password
             database='ALX_prodev'
         )
 
@@ -22,9 +24,13 @@ def stream_users():
             cursor = connection.cursor(dictionary=True)
             cursor.execute("SELECT * FROM user_data")
 
-            # Yield each row one by one
-            for row in cursor:
-                yield row  # 🔄 Yield each user row individually
+            while True:
+                batch = cursor.fetchmany(batch_size)
+                if not batch:
+                    break
+
+                # ✅ Instead of yield batch, we yield one item at a time using yield from
+                yield from batch  # 🔄 This expands the list and yields each user
 
             cursor.close()
 
@@ -34,10 +40,13 @@ def stream_users():
         if connection.is_connected():
             connection.close()
 
-def batch_processing():
+def batch_processing(batch_size):
     """
-    Processes users one by one and prints those over the age of 25.
+    Processes each user and prints those over the age of 25.
+
+    Args:
+        batch_size (int): Size of each fetch batch.
     """
-    for user in stream_users():
+    for user in stream_users_in_batches(batch_size):
         if user['age'] > 25:
             print(user)
