@@ -31,6 +31,8 @@ def stream_users_in_batches(batch_size):
                 batch = cursor.fetchmany(batch_size)
                 if not batch:
                     break
+                    
+                     # 🔶 YIELD: Generator yields one batch at a time
                 yield batch  # Yield the current batch
 
             cursor.close()
@@ -59,4 +61,6 @@ Sample Output
 {'user_id': '006e1f7f-90c2-45ad-8c1d-1275d594cc88', 'name': 'Daniel Fahey IV', 'email': 'Delia.Lesch11@hotmail.com', 'age': 49}
 {'user_id': '00cc08cc-62f4-4da1-b8e4-f5d9ef5dbbd4', 'name': 'Alma Bechtelar', 'email': 'Shelly_Balistreri22@hotmail.com', 'age': 102}
 {'user_id': '01187f09-72be-4924-8a2d-150645dcadad', 'name': 'Jonathon Jones', 'email': 'Jody.Quigley-Ziemann33@yahoo.com', 'age': 116}
+
+
 
