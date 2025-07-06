@@ -2,15 +2,19 @@
 import mysql.connector
 from mysql.connector import Error
 
-def stream_users_in_batches(batch_size):
+def stream_users():
     """
-    Generator function that yields batches of user rows from the database.
+    Generator function that connects to the database and yields one user at a time.
+
+    Yields:
+        dict: A dictionary representing a user row.
     """
     try:
+        # Connect to the ALX_prodev database
         connection = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='',
+            password='',  # Update if your MySQL setup uses a password
             database='ALX_prodev'
         )
 
@@ -18,11 +22,9 @@ def stream_users_in_batches(batch_size):
             cursor = connection.cursor(dictionary=True)
             cursor.execute("SELECT * FROM user_data")
 
-            while True:
-                batch = cursor.fetchmany(batch_size)
-                if not batch:
-                    break
-                yield batch  # ✅ This is the generator yield
+            # Yield each row one by one
+            for row in cursor:
+                yield row  # 🔄 Yield each user row individually
 
             cursor.close()
 
@@ -32,12 +34,10 @@ def stream_users_in_batches(batch_size):
         if connection.is_connected():
             connection.close()
 
-
-def batch_processing(batch_size):
+def batch_processing():
     """
-    Processes users in batches and prints those over the age of 25.
+    Processes users one by one and prints those over the age of 25.
     """
-    for batch in stream_users_in_batches(batch_size):
-        for user in batch:
-            if user['age'] > 25:
-                print(user)
+    for user in stream_users():
+        if user['age'] > 25:
+            print(user)
