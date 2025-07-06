@@ -2,7 +2,7 @@
 
 import mysql.connector
 import sys
-import seed  # assumes this provides `connect_to_prodev()` and `user_data`
+import seed  # assumes this provides `connect_to_prodev()`
 
 def stream_users_in_batches(batch_size):
     """
@@ -23,14 +23,15 @@ def stream_users_in_batches(batch_size):
             return
 
         cursor = connection.cursor(dictionary=True)
-        select_query = f"SELECT user_id, name, email, age FROM {seed.user_data};"
+        # ✅ Using literal "FROM user_data" as requested
+        select_query = "SELECT user_id, name, email, age FROM user_data;"
         cursor.execute(select_query)
 
         while True:
             batch = cursor.fetchmany(batch_size)
             if not batch:
                 break
-            # ✅ Only 1 loop used: yield each user from the batch
+            # ✅ Yields one user at a time using generator
             yield from batch
 
     except mysql.connector.Error as err:
@@ -59,6 +60,6 @@ def batch_processing(batch_size):
     Yields:
         dict: A user dictionary for users over age 25.
     """
-    for user in stream_users_in_batches(batch_size):  # ✅ 2nd and final loop
+    for user in stream_users_in_batches(batch_size):  # ✅ 2nd loop only
         if user.get('age') is not None and user['age'] > 25:
             yield user
