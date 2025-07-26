@@ -1,0 +1,158 @@
+{
+  "info": {
+    "name": "Messaging App API Testing",
+    "description": "Postman collection to test conversation and message API endpoints with JWT auth.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login (JWT Token)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/token/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "token", ""]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"your_username\",\n  \"password\": \"your_password\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Create Conversation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/conversations/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "conversations", ""]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"participants\": [2, 3]\n}"
+        }
+      }
+    },
+    {
+      "name": "Send Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/messages/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "messages", ""]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"conversation\": 1,\n  \"content\": \"Hello, this is a test message!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Get My Conversations",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/conversations/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "conversations", ""]
+        }
+      }
+    },
+    {
+      "name": "Get Messages (paginated + filtered)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/messages/?conversation=1&page=1&start_date=2024-01-01",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "messages", ""],
+          "query": [
+            {
+              "key": "conversation",
+              "value": "1"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "start_date",
+              "value": "2024-01-01"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Access without Token (Unauthorized)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/conversations/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "conversations", ""]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": "your_access_token_here"
+    }
+  ]
+}
