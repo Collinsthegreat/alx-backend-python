@@ -101,3 +101,21 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message from {self.sender.email} at {self.sent_at}"
+
+# chats/models.py
+
+from django.contrib.auth import get_user_model
+from django.db import models
+
+User = get_user_model()
+
+class Conversation(models.Model):
+    participants = models.ManyToManyField(User, related_name="conversations")
+    # Other fields...
+
+class Message(models.Model):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
