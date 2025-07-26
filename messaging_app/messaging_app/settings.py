@@ -188,8 +188,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'chats.pagination.StandardResultsSetPagination',
-    'PAGE_SIZE': 20,  # fallback if not defined in custom pagination
+    'DEFAULT_PAGINATION_CLASS': 'chats.pagination.StandardResultsSetPagination',  # Uses PageNumberPagination under the hood
+    'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
