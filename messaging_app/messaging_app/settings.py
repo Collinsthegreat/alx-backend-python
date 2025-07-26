@@ -162,13 +162,16 @@ AUTH_USER_MODEL = "chats.User"
 
 # messaging_app/settings.py
 
+# messaging_app/settings.py
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
         'chats.permissions.IsParticipantOfConversation',
     ],
-    # Optional, but useful for APIs:
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Optional
     ],
 }
