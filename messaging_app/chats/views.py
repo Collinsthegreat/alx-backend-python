@@ -159,3 +159,40 @@ class MessageViewSet(viewsets.ModelViewSet):
             )
         serializer.save(sender=self.request.user)
 
+# chats/views.py
+
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.status import HTTP_403_FORBIDDEN
+from django_filters.rest_framework import DjangoFilterBackend
+
+from chats.models import Message
+from chats.serializers import MessageSerializer
+from chats.permissions import IsParticipantOfConversation
+from chats.filters import MessageFilter
+from chats.pagination import StandardResultsSetPagination
+
+class MessageViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for messages. Paginates and filters results, restricts access to participants.
+    """
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MessageFilter
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        return Message.objects.filter(conversation__participants=self.request.user)
+
+    def perform_create(self, serializer):
+        conversation = serializer.validated_data.get('conversation')
+        if self.request.user not in conversation.participants.all():
+            return Response(
+                {"detail": "You are not a participant of this conversation."},
+                status=HTTP_403_FORBIDDEN
+            )
+        serializer.save(sender=self.request.user)
+
+
