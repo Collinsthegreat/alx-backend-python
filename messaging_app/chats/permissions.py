@@ -1,23 +1,26 @@
+# chats/permissions.py
+
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class IsParticipantOfConversation(BasePermission):
     """
-    Custom permission to allow access only to authenticated users
-    who are participants of the conversation.
+    Allows only participants of a conversation to send, view, update, or delete messages.
     """
 
     def has_permission(self, request, view):
-        # Allow only authenticated users
+        # Only allow authenticated users
         return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
         """
-        Check if the user is a participant of the conversation related to the message.
-        `obj` is expected to be a Message instance with a `.conversation` attribute.
+        Object-level permission:
+        - Only participants of the related conversation can access the message
+        - Applies to GET, PUT, PATCH, DELETE
         """
-        conversation = getattr(obj, 'conversation', None)
-        if conversation is None:
-            return False
+        if request.method in ['PUT', 'PATCH', 'DELETE', 'GET']:
+            conversation = getattr(obj, 'conversation', None)
+            if not conversation:
+                return False
+            return request.user in conversation.participants.all()
 
-        # Assuming conversation has a ManyToManyField or a related manager for participants
-        return request.user in conversation.participants.all()
+        return True  # Allow other safe methods (e.g., HEAD, OPTIONS)
