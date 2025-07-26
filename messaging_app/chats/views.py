@@ -124,13 +124,15 @@ class MessageViewSet(viewsets.ModelViewSet):
 #
 # chats/views.py
 
+# chats/views.py
+
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from chats.models import Message
 from chats.serializers import MessageSerializer
 from chats.permissions import IsParticipantOfConversation
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.status import HTTP_403_FORBIDDEN  # ✅ EXPLICIT IMPORT
 
 class MessageViewSet(viewsets.ModelViewSet):
     """
@@ -151,5 +153,9 @@ class MessageViewSet(viewsets.ModelViewSet):
         """
         conversation = serializer.validated_data.get('conversation')
         if self.request.user not in conversation.participants.all():
-            raise PermissionDenied(detail="You are not a participant of this conversation.")
+            return Response(
+                {"detail": "You are not a participant of this conversation."},
+                status=HTTP_403_FORBIDDEN
+            )
         serializer.save(sender=self.request.user)
+
