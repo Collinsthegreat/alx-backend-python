@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Message Detail</title>
+</head>
+<body>
+    <h1>Message</h1>
+    <p><strong>Current:</strong> {{ message.content }}</p>
+    <p><strong>Edited:</strong> {{ message.edited }}</p>
+
+    <h2>Edit History</h2>
+    {% if history %}
+        <ul>
+            {% for item in history %}
+                <li>
+                    <strong>{{ item.timestamp }}</strong>: {{ item.old_content }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No edit history.</p>
+    {% endif %}
+</body>
+</html>
