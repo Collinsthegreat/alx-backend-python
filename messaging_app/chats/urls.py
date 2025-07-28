@@ -7,6 +7,7 @@ URL configuration for chats app
 from django.urls import include, path
 from rest_framework import routers
 from rest_framework_nested.routers import NestedDefaultRouter
+from .views import conversation_view
 
 from .views import ConversationViewSet, MessageViewSet
 
@@ -49,3 +50,8 @@ urlpatterns = [
         name="conversation-messages-detail",
     ),
 ]
+
+urlpatterns = [
+    path('messages/', conversation_view, name='conversation'),
+]
+
