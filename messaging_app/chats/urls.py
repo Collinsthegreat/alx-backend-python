@@ -49,9 +49,7 @@ urlpatterns = [
         ),
         name="conversation-messages-detail",
     ),
-]
-
-urlpatterns = [
+    # Custom conversation view
     path('messages/', conversation_view, name='conversation'),
 ]
 

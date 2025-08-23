@@ -3,11 +3,34 @@
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from chats.models import Message
-from chats.serializers import MessageSerializer
+from chats.models import Message, Conversation
+from chats.serializers import MessageSerializer, ConversationDetailSerializer as ConversationSerializer
 from chats.permissions import IsParticipantOfConversation
 from rest_framework.exceptions import PermissionDenied
 from django.views.decorators.cache import cache_page
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+
+class ConversationViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing conversations. Only participants can access.
+    """
+    serializer_class = ConversationSerializer
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
+
+    def get_queryset(self):
+        """
+        Return only conversations the user is participating in.
+        """
+        return Conversation.objects.filter(participants=self.request.user)
+
+    def perform_create(self, serializer):
+        """
+        Create a new conversation and add the creator as a participant.
+        """
+        conversation = serializer.save()
+        conversation.participants.add(self.request.user)
 
 
 class MessageViewSet(viewsets.ModelViewSet):
@@ -33,13 +56,11 @@ class MessageViewSet(viewsets.ModelViewSet):
         serializer.save(sender=self.request.user)
 
 
-from django.shortcuts import render
-from .models import Message
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import cache_page
-
 @cache_page(60)
 @login_required
 def conversation_view(request):
-    messages = Message.objects.filter(receiver=request.user).order_by('-timestamp')
+    """
+    Simple view to display messages for a user.
+    """
+    messages = Message.objects.filter(conversation__participants=request.user).order_by('-sent_at')
     return render(request, 'chats/conversation.html', {'messages': messages})

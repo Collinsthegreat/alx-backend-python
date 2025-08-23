@@ -1,3 +1,33 @@
+# Virtual Environments
 .venv/
-.venv/
-.venv/
+venv/
+env/
+
+# Environment Variables (DO NOT COMMIT)
+.env
+.env.local
+.env.*.local
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+media/
+staticfiles/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

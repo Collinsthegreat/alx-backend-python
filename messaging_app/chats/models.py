@@ -63,9 +63,12 @@ class User(AbstractUser):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, null=False)
     created_at = models.DateField(default=timezone.now)
 
+    # Assign the custom manager
+    objects = UserManager()
+
     # Set authentication fields
-    USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["first_name", "last_name"]
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name", "last_name", "role"]
 
     def __str__(self):
         return f"{self.email} ({self.role})"
@@ -102,41 +105,19 @@ class Message(models.Model):
     def __str__(self):
         return f"Message from {self.sender.email} at {self.sent_at}"
 
-# chats/models.py
 
-from django.contrib.auth import get_user_model
-from django.db import models
-
-User = get_user_model()
-
-class Conversation(models.Model):
-    participants = models.ManyToManyField(User, related_name="conversations")
-    # Other fields...
-
-class Message(models.Model):
-    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
-    sender = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-    edited = models.BooleanField(default=False)
-
-    parent_message = models.ForeignKey(
-        'self',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name='replies'
-    )
-
-    def __str__(self):
-        return f"From {self.sender} to {self.receiver}: {self.content[:20]}"
-    
 class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    message = models.ForeignKey(Message, on_delete=models.CASCADE)
+    """Representation of a notification sent to a user about a message"""
+    
+    notification_id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, db_index=True
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    message = models.ForeignKey('Message', on_delete=models.CASCADE, related_name="notifications")
     text = models.CharField(max_length=255)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Notification for {self.user.username}"
+        return f"Notification for {self.user.email}: {self.text[:30]}"
 
