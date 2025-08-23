@@ -1,11 +1,9 @@
 #!/bin/sh
-
-# Exit immediately if a command fails
 set -e
 
-# Wait for the database to be ready (optional: only needed if you want to be sure MySQL/Postgres is up)
+# Wait for the database to be ready
 if [ "$DB_HOST" != "" ]; then
-  echo "Waiting for database at $DB_HOST..."
+  echo "Waiting for database at $DB_HOST:$DB_PORT..."
   while ! nc -z $DB_HOST $DB_PORT; do
     sleep 1
   done
@@ -17,7 +15,7 @@ echo "Database is ready!"
 python manage.py makemigrations --noinput
 python manage.py migrate --noinput
 
-# Collect static files (optional but useful in production)
+# Collect static files
 python manage.py collectstatic --noinput
 
 # Start Django development server
