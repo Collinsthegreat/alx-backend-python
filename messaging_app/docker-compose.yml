@@ -59,14 +59,16 @@ version: '3.8'
 
 services:
   # MySQL Database Service
-  db:
+
+    db:
     image: mysql:8.0
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    
     ports:
       - "3307:3306"   # Use 3307 locally to avoid conflicts
     volumes:
@@ -80,20 +82,20 @@ services:
       retries: 5
 
   # Django Web Application Service
-  web:
+web:
     build: .
     restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
+      - DEBUG=${DEBUG}
       - SECRET_KEY=${SECRET_KEY}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - DB_NAME=${MYSQL_DB}            # ✅ match .env
+      - DB_USER=${MYSQL_USER}          # ✅ match .env
+      - DB_PASSWORD=${MYSQL_PASSWORD}  # ✅ match .env
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
     depends_on:
       db:
         condition: service_healthy
@@ -106,7 +108,8 @@ services:
              python manage.py makemigrations &&
              python manage.py migrate &&
              python manage.py collectstatic --noinput &&
-             python manage.py runserver 0.0.0.0:8000"
+             python3 manage.py runserver 0.0.0.0:8000"
+
 
 volumes:
   mysql_data:
