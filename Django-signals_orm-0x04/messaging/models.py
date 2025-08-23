@@ -50,6 +50,15 @@ class Message(models.Model):
     # ✅ Custom manager for unread messages
     unread = UnreadMessagesManager()
 
+    # ✅ Added to support message replies
+    parent_message = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='replies'
+    )
+
     def __str__(self):
         return f"From {self.sender} to {self.receiver}: {self.content[:30]}"
 
