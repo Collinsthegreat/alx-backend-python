@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Step 1: Apply the updated deployment (triggers rolling update)
+echo "Applying rolling update..."
+kubectl apply -f blue_deployment.yaml
+
+# Step 2: Monitor rolling update progress
+echo "Monitoring rollout status..."
+kubectl rollout status deployment/messaging-app-blue
+
+# Step 3: Continuously test app availability
+echo "Testing app availability..."
+for i in {1..20}; do
+  response=$(curl -s -o /dev/null -w "%{http_code}" http://<YOUR-SERVICE-IP>:8000)
+  if [ "$response" -ne 200 ]; then
+    echo "Request failed with status code $response"
+  else
+    echo "Request succeeded"
+  fi
+  sleep 1
+done
+
+# Step 4: Verify pods are updated
+echo "Current pods after rolling update:"
+kubectl get pods -l app=messaging-app,version=blue
