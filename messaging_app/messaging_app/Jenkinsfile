@@ -7,7 +7,7 @@ pipeline {
         DOCKER_HUB_REPO = "collinsthegr8/messaging-app"
     }
 
-    stages {      
+    stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -16,21 +16,16 @@ pipeline {
             }
         }
 
-        stage('Setup Python') {
+        stage('Setup Python & Run Tests') {
+            agent {
+                docker { image 'python:3.10' }
+            }
             steps {
                 sh '''
                 python3 -m venv ${VENV_DIR}
                 . ${VENV_DIR}/bin/activate
                 pip install --upgrade pip
-                pip3 install -r messaging_app/requirements.txt
-                '''
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh '''
-                . ${VENV_DIR}/bin/activate
+                pip install -r messaging_app/requirements.txt
                 pytest messaging_app/tests --junitxml=report.xml
                 '''
             }
@@ -42,6 +37,7 @@ pipeline {
         }
 
         stage('Build Docker Image') {
+            agent any
             steps {
                 sh '''
                 docker build -t ${DOCKER_HUB_REPO}:latest messaging_app/
@@ -50,6 +46,7 @@ pipeline {
         }
 
         stage('Push Docker Image') {
+            agent any
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds',
                                                  usernameVariable: 'DOCKER_USER',
