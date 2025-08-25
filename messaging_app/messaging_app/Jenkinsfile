@@ -6,14 +6,15 @@ pipeline {
         VENV_DIR = 'venv'
     }
 
-    stages {
+    stages {      
         stage('Checkout') {
-            steps {
-                git branch: 'main',
-                    credentialsId: "${env.GITHUB_CREDENTIALS}",
-                    url: 'https://github.com/your-username/alx-backend-python.git'
-            }
+        steps {
+            git branch: 'main',
+                url: 'https://github.com/collinsthegreat/alx-backend-python.git',
+                credentialsId: 'github-creds'
         }
+}
+
 
         stage('Setup Python') {
             steps {
