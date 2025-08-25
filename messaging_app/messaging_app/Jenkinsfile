@@ -21,7 +21,7 @@ pipeline {
                 python3 -m venv ${VENV_DIR}
                 . ${VENV_DIR}/bin/activate
                 pip install --upgrade pip
-                pip install -r messaging_app/requirements.txt
+                pip3 install -r messaging_app/requirements.txt
                 '''
             }
         }
@@ -41,7 +41,4 @@ pipeline {
         }
     }
 
-    triggers {
-        // Manual trigger (no SCM polling or webhook for now)
-    }
 }
